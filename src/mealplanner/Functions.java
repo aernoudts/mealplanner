@@ -60,40 +60,64 @@ public class Functions {
             String[] ingredientsArray = mealIngredients.split(",");
             ingList.put(mealName, ingredientsArray);
             items.add(toAdd);
-            statement.executeUpdate("insert into meals (meal_id, meal, category) values (" +
-                    mealId + ", " +
-                    "'" + mealName + "', " +
+            statement.executeUpdate("INSERT INTO meals (meal_id, meal, category) VALUES (nextval('sequence_meals'), '" +
+                    mealName + "', " +
                     "'" + mealType + "')");
+            PreparedStatement ps = connection.prepareStatement("SELECT MAX(meal_id) AS max_id FROM meals");
+            ResultSet rs = ps.executeQuery();
+            int maxID = 0;
+            if (rs.next()) {
+                maxID = rs.getInt("max_id");
+            }
             for (String ingredient : ingredientsArray) {
-                statement.executeUpdate("INSERT INTO ingredients (ingredient, ingredient_id, meal_id) VALUES (" + "'" + ingredient + "', " + ingId + ", " + mealId + ")");
-                ingId++;
+                statement.executeUpdate("INSERT INTO ingredients (ingredient, ingredient_id, meal_id) VALUES (" + "'" + ingredient + "', nextval('sequence_ings'), " + maxID + ")");
             }
             System.out.println("The meal has been added!");
             break;
         }
     }
-    public static void show() throws SQLException {
+    public static void show(String category) throws SQLException {
         String DB_URL = "jdbc:postgresql:meals_db";
         String USER = "postgres";
         String PASS = "1111";
         Connection connection = DriverManager.getConnection(DB_URL, USER, PASS);
         connection.setAutoCommit(true);
-        int meal_id = 1;
-        PreparedStatement statementMeal = connection.prepareStatement("SELECT * FROM meals");
-        ResultSet rs = statementMeal.executeQuery();
+        PreparedStatement statementCategory = connection.prepareStatement("SELECT * FROM meals WHERE category = '" + category + "'");
+        ResultSet rs = statementCategory.executeQuery();
+        PreparedStatement statementCount = connection.prepareStatement("SELECT COUNT (*) AS total FROM meals WHERE category = '" + category + "'");
+        ResultSet rsCount = statementCount.executeQuery();
+        rsCount.next();
+        int rowCount = rsCount.getInt("total");
+        if (rowCount == 0) {
+            System.out.println("No meals found.");
+            return;
+        }
+        System.out.println("Category: " + category + "\n");
         while (rs.next()) {
-            PreparedStatement statementIngredient = connection.prepareStatement("SELECT * FROM ingredients WHERE meal_id = " + meal_id);
+            PreparedStatement statementIngredient = connection.prepareStatement("SELECT * FROM ingredients WHERE meal_id = " + rs.getString("meal_id"));
             ResultSet rs2 = statementIngredient.executeQuery();
-            System.out.println("Category: " + rs.getString("category"));
             System.out.println("Name: " + rs.getString("meal"));
             System.out.println("Ingredients:");
             while (rs2.next()) {
                 System.out.println(rs2.getString("ingredient").strip());
             }
             System.out.println("");
-            meal_id++;
         }
-        statementMeal.close();
+
+        statementCategory.close();
         connection.close();
+    }
+    public static String mealCategory() {
+        while (true) {
+            Scanner scanner = new Scanner(System.in);
+            Set<String> categories = Set.of("breakfast", "lunch", "dinner");
+            System.out.println("Which category do you want to print (breakfast, lunch, dinner)?");
+            String category = scanner.nextLine();
+            if (!categories.contains(category.toLowerCase())) {
+                System.out.println("Wrong meal category! Choose from: breakfast, lunch, dinner.");
+            } else {
+                return category;
+            }
+        }
     }
 }

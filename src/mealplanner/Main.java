@@ -14,14 +14,17 @@ public class Main {
     Connection connection = DriverManager.getConnection(DB_URL, USER, PASS);
     connection.setAutoCommit(true);
     Statement statement = connection.createStatement();
+    statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_meals");
+    statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_ings");
+
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS meals " +
             "(category VARCHAR, " +
             "meal VARCHAR, " +
-            "meal_id INT)");
+            "meal_id INT PRIMARY KEY)");
 
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS ingredients " +
             "(ingredient VARCHAR, " +
-            "ingredient_id INT, " +
+            "ingredient_id INT PRIMARY KEY, " +
             "meal_id INT)");
 
     Scanner scanner = new Scanner(System.in);
@@ -33,9 +36,8 @@ public class Main {
       if (action.toLowerCase().equals("add")) {
         add(items, ingList, mealId, ingId);
         mealId++;
-
       } else if (action.toLowerCase().equals("show")) {
-        show();
+        show(mealCategory());
 
       } else if (action.toLowerCase().equals("exit")) {
         System.out.println("Bye!");
