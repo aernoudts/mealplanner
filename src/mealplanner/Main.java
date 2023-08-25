@@ -18,20 +18,20 @@ public class Main {
     while (true) {
       System.out.println("What would you like to do (add, show, plan, save, exit)?");
       String action = scanner.nextLine();
-      if (action.toLowerCase().equals("add")) {
+      if (action.equals("add")) {
         add(items, ingList, mealId, ingId);
         mealId++;
 
-      } else if (action.toLowerCase().equals("show")) {
+      } else if (action.equals("show")) {
         show(mealCategory());
 
-      } else if (action.toLowerCase().equals("plan")) {
+      } else if (action.equals("plan")) {
         plan();
 
-      } else if (action.toLowerCase().equals("save")) {
+      } else if (action.equals("save")) {
         save();
 
-      } else if (action.toLowerCase().equals("exit")) {
+      } else if (action.equals("exit")) {
         System.out.println("Bye!");
         break;
       }
