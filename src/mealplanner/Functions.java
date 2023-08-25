@@ -1,7 +1,10 @@
 package mealplanner;
 
+import java.io.File;
+import java.io.IOException;
 import java.sql.*;
 import java.util.*;
+import java.io.FileWriter;
 
 public class Functions {
 
@@ -255,5 +258,48 @@ public class Functions {
             System.out.println("Lunch: " + lunch);
             System.out.println("Dinner: " + dinner + "\n");
         }
+    }
+    public static void save() throws SQLException, IOException {
+        Scanner scanner = new Scanner(System.in);
+        Connection conn = getConnection();
+        PreparedStatement checkPlan = conn.prepareStatement("SELECT * FROM plan");
+        PreparedStatement checkId = conn.prepareStatement("SELECT meal_id FROM plan");
+        ResultSet rsPlan = checkPlan.executeQuery();
+        ResultSet rsId = checkId.executeQuery();
+        if (rsPlan.next() == false) {
+            System.out.println("Unable to save. Plan your meals first.");
+            return;
+        }
+        ArrayList<Integer> idList = new ArrayList<>();
+        HashMap<String, Integer> ingList = new HashMap<>();
+        System.out.println("Input a filename:");
+        File file = new File(scanner.nextLine());
+        FileWriter writer = new FileWriter(file, true);
+        while (rsId.next()) {
+            int mealId = rsId.getInt("meal_id");
+            idList.add(mealId);
+        }
+        for (int id : idList) {
+            PreparedStatement checkIngredients = conn.prepareStatement("SELECT ingredient FROM ingredients WHERE meal_id = " + id);
+            ResultSet rsIngs = checkIngredients.executeQuery();
+            while (rsIngs.next()) {
+                String hashMapIngredient = rsIngs.getString("ingredient");
+                if (ingList.containsKey(hashMapIngredient)) {
+                    ingList.put((hashMapIngredient), ingList.get(hashMapIngredient) + 1);
+                } else {
+                    ingList.put((hashMapIngredient), 1);
+                }
+            }
+        }
+
+        for (String ing : ingList.keySet()) {
+            if (ingList.get(ing) > 1) {
+                writer.write(ing + " x" +  ingList.get(ing) + "\n");
+            } else {
+                writer.write(ing + "\n");
+            }
+        }
+        writer.close();
+        System.out.println("Saved!");
     }
 }
