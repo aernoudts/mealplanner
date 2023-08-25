@@ -7,28 +7,10 @@ import static mealplanner.Functions.*;
 
 public class Main {
   public static void main(String[] args) throws SQLException, IOException {
-    Connection connection = getConnection();
-    connection.setAutoCommit(true);
     int mealId = 1;
     int ingId = 1;
-    Statement statement = connection.createStatement();
-    statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_meals");
-    statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_ings");
 
-    statement.executeUpdate("CREATE TABLE IF NOT EXISTS meals " +
-            "(category VARCHAR, " +
-            "meal VARCHAR, " +
-            "meal_id INT PRIMARY KEY)");
-
-    statement.executeUpdate("CREATE TABLE IF NOT EXISTS ingredients " +
-            "(ingredient VARCHAR, " +
-            "ingredient_id INT PRIMARY KEY, " +
-            "meal_id INT)");
-
-    statement.executeUpdate("CREATE TABLE IF NOT EXISTS plan " +
-            "(category VARCHAR, " +
-            "meal VARCHAR, " +
-            "meal_id INT)");
+    createTables();
 
     Scanner scanner = new Scanner(System.in);
     List<List> items = new ArrayList<>();

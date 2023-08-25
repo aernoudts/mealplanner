@@ -8,11 +8,34 @@ import java.io.FileWriter;
 
 public class Functions {
 
+
     public static Connection getConnection() throws SQLException {
         String DB_URL = "jdbc:postgresql:meals_db";
         String USER = "postgres";
         String PASS = "1111";
         return DriverManager.getConnection(DB_URL, USER, PASS);
+    }
+
+    public static void createTables() throws SQLException {
+        Connection connection = getConnection();
+        Statement statement = connection.createStatement();
+        statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_meals");
+        statement.executeUpdate("CREATE SEQUENCE IF NOT EXISTS sequence_ings");
+
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS meals " +
+                "(category VARCHAR, " +
+                "meal VARCHAR, " +
+                "meal_id INT PRIMARY KEY)");
+
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS ingredients " +
+                "(ingredient VARCHAR, " +
+                "ingredient_id INT PRIMARY KEY, " +
+                "meal_id INT)");
+
+        statement.executeUpdate("CREATE TABLE IF NOT EXISTS plan " +
+                "(category VARCHAR, " +
+                "meal VARCHAR, " +
+                "meal_id INT)");
     }
 
     public static void add(List<List> items, HashMap<String, String[]> ingList, int mealId, int ingId) throws SQLException {
